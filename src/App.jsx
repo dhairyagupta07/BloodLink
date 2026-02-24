@@ -3,18 +3,82 @@ import DonorCard from './components/DonorCard'
 import FilterBar from './components/FilterBar'
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']
-const CITIES = ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Hyderabad', 'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Lucknow']
 
-function mapUserToDonor(user, index) {
-  return {
-    id: user.id,
-    name: user.name,
-    bloodGroup: BLOOD_GROUPS[index % BLOOD_GROUPS.length],
-    city: CITIES[index % CITIES.length],
-    phone: user.phone,
-    available: index % 3 !== 2, // ~67% available
+// 1. YOUR GIVEN DATA
+const MY_GIVEN_DATA = [
+  {
+    id: 1,
+    name: "Dhairya Gupta",
+    bloodGroup: "A+",
+    city: "Bulandshahr",
+    phone: "8126471106",
+    available: true
+  },
+  {
+    id: 2,
+    name: "Devansh Mittal",
+    bloodGroup: "B+",
+    city: "Patna",
+    phone: "7320012989",
+    available: true
+  },
+  {
+    id: 3,
+    name: "Prince Kotadia",
+    bloodGroup: "B+",
+    city: "Rajkot",
+    phone: "9328982707",
+    available: false
+  },
+  {
+    id: 4,
+    name: "Kavya Gandhi",
+    bloodGroup: "O-",
+    city: "Vadodara",
+    phone: "9879184495",
+    available: true
+  },
+  {
+    id: 5,
+    name: "Deyaan Kapasi",
+    bloodGroup: "O-",
+    city: "Mumbai",
+    phone: "8208323539",
+    available: true
+  },
+  {
+    id: 6,
+    name: "Samad Sabharwal",
+    bloodGroup: "AB+",
+    city: "Ludhiana",
+    phone: "7864900030",
+    available: false
+  },
+  {
+    id: 7,
+    name: "Varun Patil",
+    bloodGroup: "A-",
+    city: "Bengaluru",
+    phone: "6364450108",
+    available: true
+  },
+  {
+    id: 8,
+    name: "Soham Gangopadhyay",
+    bloodGroup: "AB-",
+    city: "Hyderabad",
+    phone: "8790276934",
+    available: false
+  },
+  {
+    id: 9,
+    name: "Kavya Tejani",
+    bloodGroup: "A+",
+    city: "Surat",
+    phone: "9429423101",
+    available: true
   }
-}
+];
 
 export default function App() {
   const [donors, setDonors] = useState([])
@@ -24,31 +88,25 @@ export default function App() {
   const [citySearch, setCitySearch] = useState('')
   const [sortByAvail, setSortByAvail] = useState(false)
 
+  // 2. UPDATED USEEFFECT
   useEffect(() => {
-    const fetchDonors = async () => {
+    const loadLocalData = () => {
       try {
-        setLoading(true)
-        const res = await fetch('https://jsonplaceholder.typicode.com/users')
-        if (!res.ok) throw new Error('Failed to fetch donors')
-        const users = await res.json()
-        // Duplicate to have more donors for demo
-        const extended = [
-          ...users,
-          ...users.map((u, i) => ({
-            ...u,
-            id: u.id + 100,
-            name: u.name.split(' ').reverse().join(' '),
-          })),
-        ]
-        setDonors(extended.map(mapUserToDonor))
+        setLoading(true);
+        // We simulate a small delay to mimic an API behavior 
+        // and show the loading state as required by your project structure
+        setTimeout(() => {
+          setDonors(MY_GIVEN_DATA);
+          setLoading(false);
+        }, 800); 
       } catch (err) {
-        setError(err.message)
-      } finally {
-        setLoading(false)
+        setError("Failed to load donor data");
+        setLoading(false);
       }
-    }
-    fetchDonors()
-  }, [])
+    };
+
+    loadLocalData();
+  }, []);
 
   const filtered = useMemo(() => {
     let result = donors

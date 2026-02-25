@@ -7,16 +7,23 @@ const BLOOD_COLORS = {
   'AB+': '#7c3aed', 'AB-': '#8b5cf6',
 }
 
-export default function DonorCard({ donor, index }) {
+// 1. Added onShowToast to the destructured props
+export default function DonorCard({ donor, index, onShowToast }) {
   const [requested, setRequested] = useState(false)
   const [animating, setAnimating] = useState(false)
 
   const handleRequest = () => {
     if (requested) return
     setAnimating(true)
+    
     setTimeout(() => {
       setRequested(true)
       setAnimating(false)
+      
+      // 2. Trigger the toast notification if the function was provided
+      if (onShowToast) {
+        onShowToast(`Request successfully sent to ${donor.name}!`)
+      }
     }, 600)
   }
 

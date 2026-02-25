@@ -33,11 +33,18 @@ export default function App() {
       try {
         setLoading(true);
         setTimeout(() => {
-          const randomizedData = MY_GIVEN_DATA.map(donor => ({
-            ...donor,
-            available: Math.random() > 0.5 
-          }));
-          setDonors(randomizedData);
+          const savedDonors = localStorage.getItem('bloodlink_donors');
+          
+          if (savedDonors) {
+            setDonors(JSON.parse(savedDonors));
+          } else {
+            const randomizedData = MY_GIVEN_DATA.map(donor => ({
+              ...donor,
+              available: Math.random() > 0.5 
+            }));
+            setDonors(randomizedData);
+            localStorage.setItem('bloodlink_donors', JSON.stringify(randomizedData));
+          }
           setLoading(false);
         }, 800); 
       } catch (err) {
@@ -80,7 +87,14 @@ export default function App() {
       ...newDonorData,
       id: Date.now(), 
     }
-    setDonors(prev => [newDonor, ...prev]) 
+    
+    setDonors(prev => {
+      const updatedList = [newDonor, ...prev];
+      // Save the newly updated list to localStorage
+      localStorage.setItem('bloodlink_donors', JSON.stringify(updatedList));
+      return updatedList;
+    });
+    
     setShowAddForm(false) 
     triggerToast(`Successfully registered ${newDonor.name} as a donor!`) 
   }
@@ -196,7 +210,7 @@ export default function App() {
       )}
 
       <style>{`
-        /* ===== LAYOUT & CORE (Restored) ===== */
+        /* ===== LAYOUT & CORE ===== */
         .app { min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
         .hero { position: relative; padding: 3rem 2rem 2.5rem; border-bottom: 1px solid var(--border); overflow: hidden; }
         .hero-bg-glow { position: absolute; top: -80px; left: 50%; transform: translateX(-50%); width: 600px; height: 300px; background: radial-gradient(ellipse, rgba(220,38,38,0.18) 0%, transparent 70%); pointer-events: none; }

@@ -88,15 +88,22 @@ export default function App() {
   const [citySearch, setCitySearch] = useState('')
   const [sortByAvail, setSortByAvail] = useState(false)
 
-  // 2. UPDATED USEEFFECT
+  // 2. UPDATED USEEFFECT WITH RANDOMIZATION
   useEffect(() => {
     const loadLocalData = () => {
       try {
         setLoading(true);
         // We simulate a small delay to mimic an API behavior 
-        // and show the loading state as required by your project structure
         setTimeout(() => {
-          setDonors(MY_GIVEN_DATA);
+          // Map over the data and randomize the 'available' boolean
+          const randomizedData = MY_GIVEN_DATA.map(donor => ({
+            ...donor,
+            // Math.random() returns a number between 0 and 1. 
+            // Checking if it's > 0.5 gives a ~50% chance of being true or false.
+            available: Math.random() > 0.5 
+          }));
+
+          setDonors(randomizedData);
           setLoading(false);
         }, 800); 
       } catch (err) {

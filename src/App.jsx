@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import DonorCard from './components/DonorCard'
 import FilterBar from './components/FilterBar'
+import AddDonorForm from './components/AddDonorForm'
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']
 
@@ -23,9 +24,8 @@ export default function App() {
   const [selectedGroup, setSelectedGroup] = useState('All')
   const [citySearch, setCitySearch] = useState('')
   const [sortByAvail, setSortByAvail] = useState(false)
-  
-  // NEW: State to manage the toast notification
-  const [toastMessage, setToastMessage] = useState('');
+  const [toastMessage, setToastMessage] = useState('')
+  const [showAddForm, setShowAddForm] = useState(false)
 
   useEffect(() => {
     const loadLocalData = () => {
@@ -67,18 +67,25 @@ export default function App() {
     [filtered]
   )
 
-  // NEW: Function to trigger the toast notification
   const triggerToast = (message) => {
     setToastMessage(message);
-    // Hide toast automatically after 3.5 seconds
     setTimeout(() => {
       setToastMessage('');
     }, 3500);
   };
 
+  const handleAddDonor = (newDonorData) => {
+    const newDonor = {
+      ...newDonorData,
+      id: Date.now(), 
+    }
+    setDonors(prev => [newDonor, ...prev]) 
+    setShowAddForm(false) 
+    triggerToast(`Successfully registered ${newDonor.name} as a donor!`) 
+  }
+
   return (
     <div className="app">
-      {/* Hero Header */}
       <header className="hero">
         <div className="hero-bg-glow" />
         <div className="hero-inner">
@@ -109,6 +116,11 @@ export default function App() {
                 <span className="stat-num">{filtered.length}</span>
                 <span className="stat-label">Showing</span>
               </div>
+              
+              <div className="stat-divider hide-mobile" />
+              <button className="add-donor-btn" onClick={() => setShowAddForm(true)}>
+                + Become a Donor
+              </button>
             </div>
           )}
         </div>
@@ -160,7 +172,6 @@ export default function App() {
         {!loading && !error && filtered.length > 0 && (
           <div className="donor-grid">
             {filtered.map((donor, i) => (
-              /* NEW: Pass the triggerToast function to each card */
               <DonorCard key={donor.id} donor={donor} index={i} onShowToast={triggerToast} />
             ))}
           </div>
@@ -171,171 +182,17 @@ export default function App() {
         <span>BloodLink — Saving lives, one connection at a time</span>
       </footer>
 
-      {/* NEW: Toast Notification Element */}
       <div className={`toast-notification ${toastMessage ? 'show' : ''}`}>
         <div className="toast-icon">✅</div>
         <div className="toast-text">{toastMessage}</div>
       </div>
 
-      <style>{`
-        /* ===== LAYOUT & CORE (Unchanged) ===== */
-        .app { min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
-        .hero { position: relative; padding: 3rem 2rem 2.5rem; border-bottom: 1px solid var(--border); overflow: hidden; }
-        .hero-bg-glow { position: absolute; top: -80px; left: 50%; transform: translateX(-50%); width: 600px; height: 300px; background: radial-gradient(ellipse, rgba(220,38,38,0.18) 0%, transparent 70%); pointer-events: none; }
-        .hero-inner { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; position: relative; z-index: 1; }
-        .logo-mark { position: relative; }
-        .logo-drop { font-size: 3rem; display: block; animation: heartbeat 2.5s ease-in-out infinite; filter: drop-shadow(0 0 20px rgba(220,38,38,0.6)); }
-        .hero-text { text-align: center; }
-        .hero-title { font-family: var(--font-display); font-size: clamp(3rem, 10vw, 7rem); line-height: 1; letter-spacing: 0.04em; display: flex; gap: 0.3em; }
-        .title-blood { color: var(--red-bright); text-shadow: 0 0 40px rgba(239,68,68,0.4); }
-        .title-link { color: var(--text-primary); }
-        .hero-sub { font-size: 0.95rem; color: var(--text-secondary); font-weight: 300; letter-spacing: 0.02em; margin-top: 0.3rem; }
-
-        /* ===== STATS BAR ===== */
-        .stats-bar { display: flex; align-items: center; gap: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 100px; padding: 0.75rem 2rem; margin-top: 0.5rem; animation: fadeUp 0.5s ease both 0.3s; }
-        .stat-item { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
-        .stat-num { font-family: var(--font-display); font-size: 1.5rem; color: var(--text-primary); letter-spacing: 0.05em; }
-        .available-num { color: #4ade80; }
-        .stat-label { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500; }
-        .stat-divider { width: 1px; height: 32px; background: var(--border); }
-
-        /* ===== MAIN & LAYOUT ===== */
-        .main { flex: 1; max-width: 1100px; width: 100%; margin: 0 auto; padding: 2rem 1.5rem; }
-        .filter-bar { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-bottom: 2rem; padding: 1.25rem 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); animation: fadeUp 0.4s ease both; }
-        .search-wrapper { position: relative; flex: 1; min-width: 180px; }
-        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
-        .search-input { width: 100%; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-family: var(--font-body); font-size: 0.875rem; padding: 0.6rem 0.75rem 0.6rem 2.25rem; outline: none; transition: border-color var(--transition); }
-        .search-input::placeholder { color: var(--text-muted); }
-        .search-input:focus { border-color: var(--red); }
-        .clear-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; line-height: 1; padding: 0 2px; }
-        .clear-btn:hover { color: var(--text-primary); }
-
-        .group-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-        .group-pill { background: var(--surface-2); border: 1px solid var(--border); color: var(--text-secondary); font-family: var(--font-body); font-size: 0.8rem; font-weight: 500; padding: 0.35rem 0.75rem; border-radius: 100px; cursor: pointer; transition: all var(--transition); }
-        .group-pill:hover { border-color: var(--red); color: var(--text-primary); }
-        .group-pill.active { background: var(--red); border-color: var(--red); color: #fff; box-shadow: 0 0 12px rgba(220,38,38,0.35); }
-
-        .sort-toggle { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; user-select: none; white-space: nowrap; }
-        .sort-toggle input { display: none; }
-        .toggle-track { width: 36px; height: 20px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 100px; position: relative; transition: background var(--transition); }
-        .sort-toggle input:checked + .toggle-track { background: var(--red); border-color: var(--red); }
-        .toggle-thumb { position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; background: #fff; border-radius: 50%; transition: transform var(--transition); }
-        .sort-toggle input:checked + .toggle-track .toggle-thumb { transform: translateX(16px); }
-        .toggle-label { font-size: 0.82rem; color: var(--text-secondary); }
-
-        .donor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
-
-        /* ===== DONOR CARD ===== */
-        .donor-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; position: relative; overflow: hidden; transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition); display: flex; flex-direction: column; gap: 0.85rem; }
-        .donor-card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3), 0 0 0 1px rgba(220,38,38,0.08); }
-        .card-accent { position: absolute; top: 0; left: 0; width: 3px; height: 100%; border-radius: 12px 0 0 12px; }
-
-        .blood-badge { position: relative; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; }
-        .blood-badge::before { content: ''; position: absolute; inset: 0; border-radius: 14px; background: var(--badge-color); opacity: 0.15; }
-        .blood-badge::after { content: ''; position: absolute; inset: 0; border-radius: 14px; border: 1.5px solid var(--badge-color); opacity: 0.4; }
-        .blood-badge-text { font-family: var(--font-display); font-size: 1.25rem; color: var(--badge-color); position: relative; z-index: 1; letter-spacing: 0.05em; }
-        .badge-ring { position: absolute; inset: -4px; border-radius: 18px; border: 1px solid var(--badge-color); opacity: 0; transition: opacity var(--transition); }
-        .donor-card:hover .badge-ring { opacity: 0.2; }
-
-        .card-content { display: flex; flex-direction: column; gap: 0.5rem; }
-        .donor-name { font-size: 1rem; font-weight: 600; color: var(--text-primary); line-height: 1.3; }
-        .donor-meta { display: flex; flex-direction: column; gap: 0.3rem; }
-        .meta-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--text-secondary); }
-        .meta-item svg { flex-shrink: 0; opacity: 0.6; }
-
-        .availability-tag { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; font-weight: 500; padding: 0.25rem 0.6rem; border-radius: 100px; width: fit-content; letter-spacing: 0.03em; }
-        .availability-tag.available { background: var(--available-bg); color: #4ade80; border: 1px solid rgba(74,222,128,0.2); }
-        .availability-tag.unavailable { background: var(--unavailable-bg); color: var(--unavailable); border: 1px solid rgba(107,114,128,0.15); }
-        .tag-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
-        .availability-tag.available .tag-dot { box-shadow: 0 0 6px currentColor; animation: pulse-ring 1.5s ease-out infinite; }
-
-        .request-btn { width: 100%; padding: 0.65rem 1rem; border-radius: var(--radius-sm); border: 1.5px solid var(--btn-color, var(--red)); background: transparent; color: var(--btn-color, var(--red)); font-family: var(--font-body); font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all var(--transition); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 0.5rem; letter-spacing: 0.02em; }
-        .request-btn::before { content: ''; position: absolute; inset: 0; background: var(--btn-color, var(--red)); opacity: 0; transition: opacity var(--transition); }
-        .request-btn:hover:not(:disabled)::before { opacity: 0.12; }
-        .request-btn:hover:not(:disabled) { box-shadow: 0 0 16px rgba(220,38,38,0.25); transform: translateY(-1px); }
-        .request-btn:disabled:not(.sent) { opacity: 0.3; cursor: not-allowed; border-color: var(--text-muted); color: var(--text-muted); }
-        .request-btn.sent { border-color: var(--available); color: #4ade80; cursor: default; }
-        .check-icon { font-size: 0.9rem; }
-        .btn-spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.2); border-top-color: currentColor; border-radius: 50%; animation: spin 0.7s linear infinite; position: relative; z-index: 1; }
-
-        .state-center { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; min-height: 360px; text-align: center; }
-        .spinner-wrap { position: relative; width: 56px; height: 56px; }
-        .spinner { width: 56px; height: 56px; border: 2.5px solid rgba(220,38,38,0.15); border-top-color: var(--red); border-radius: 50%; animation: spin 0.9s linear infinite; }
-        .spinner-ring { position: absolute; inset: -8px; border-radius: 50%; border: 1px solid rgba(220,38,38,0.1); animation: spin 2.5s linear infinite reverse; }
-        .state-text { color: var(--text-secondary); font-size: 0.95rem; }
-        .state-heading { font-size: 1.2rem; font-weight: 600; color: var(--text-primary); }
-        .error-icon, .empty-icon { font-size: 3rem; }
-        .error-text { color: var(--red-bright); }
-        .retry-btn { background: var(--surface-2); border: 1px solid var(--border); color: var(--text-primary); font-family: var(--font-body); font-size: 0.875rem; padding: 0.6rem 1.5rem; border-radius: 100px; cursor: pointer; transition: all var(--transition); margin-top: 0.5rem; }
-        .retry-btn:hover { border-color: var(--red); color: var(--red-bright); }
-
-        .footer { border-top: 1px solid var(--border); text-align: center; padding: 1.25rem; font-size: 0.78rem; color: var(--text-muted); letter-spacing: 0.03em; }
-
-        /* ===== NEW: TOAST STYLES ===== */
-        .toast-notification {
-          position: fixed;
-          bottom: 2rem;
-          right: 2rem;
-          background: #1e1e24; /* Dark surface for sleek contrast */
-          border: 1px solid var(--border);
-          border-left: 4px solid #4ade80; /* Green accent */
-          box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-          padding: 1rem 1.2rem;
-          border-radius: var(--radius);
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          z-index: 1000;
-          
-          /* Animation setup */
-          transform: translateX(120%);
-          opacity: 0;
-          transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
-          pointer-events: none;
-        }
-
-        .toast-notification.show {
-          transform: translateX(0);
-          opacity: 1;
-        }
-
-        .toast-icon {
-          font-size: 1.2rem;
-        }
-
-        .toast-text {
-          color: #f1f1f1;
-          font-size: 0.9rem;
-          font-weight: 500;
-          font-family: var(--font-body);
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 600px) {
-          .hero { padding: 2rem 1rem 1.75rem; }
-          .stats-bar { gap: 1rem; padding: 0.75rem 1.25rem; }
-          .filter-bar { padding: 1rem; }
-          .main { padding: 1.25rem 1rem; }
-          /* Center toast on small screens */
-          .toast-notification {
-            right: 50%;
-            bottom: 1.5rem;
-            transform: translate(50%, 150%);
-          }
-          .toast-notification.show {
-            transform: translate(50%, 0);
-          }
-        }
-        @media (max-width: 600px) {
-          .hero-title {
-            flex-direction: column;
-            gap: 0.1em;
-          }
-        }
-      `}</style>
+      {showAddForm && (
+        <AddDonorForm 
+          onClose={() => setShowAddForm(false)} 
+          onSubmit={handleAddDonor} 
+        />
+      )}
     </div>
   )
 }

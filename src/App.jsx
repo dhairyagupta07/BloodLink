@@ -33,17 +33,14 @@ export default function App() {
         setLoading(true);
         setTimeout(() => {
           const savedDonors = localStorage.getItem('bloodlink_donors');
-          
-          if (savedDonors) {
-            setDonors(JSON.parse(savedDonors));
-          } else {
-            const randomizedData = MY_GIVEN_DATA.map(donor => ({
-              ...donor,
-              available: Math.random() > 0.5 
-            }));
-            setDonors(randomizedData);
-            localStorage.setItem('bloodlink_donors', JSON.stringify(randomizedData));
-          }
+          const baseData = savedDonors ? JSON.parse(savedDonors) : MY_GIVEN_DATA;
+
+          const randomizedData = baseData.map(donor => ({
+            ...donor,
+            available: Math.random() > 0.5 
+          }));
+
+          setDonors(randomizedData);
           setLoading(false);
         }, 800); 
       } catch (err) {

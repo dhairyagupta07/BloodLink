@@ -33,7 +33,7 @@ const MY_GIVEN_DATA = [
   {
     id: 4,
     name: "Kavya Gandhi",
-    bloodGroup: "O-",
+    bloodGroup: "O+",
     city: "Vadodara",
     phone: "9879184495",
     available: true
@@ -73,7 +73,7 @@ const MY_GIVEN_DATA = [
   {
     id: 9,
     name: "Kavya Tejani",
-    bloodGroup: "A+",
+    bloodGroup: "B-",
     city: "Surat",
     phone: "9429423101",
     available: true

@@ -329,6 +329,12 @@ export default function App() {
             transform: translate(50%, 0);
           }
         }
+        @media (max-width: 600px) {
+          .hero-title {
+            flex-direction: column;
+            gap: 0.1em;
+          }
+        }
       `}</style>
     </div>
   )

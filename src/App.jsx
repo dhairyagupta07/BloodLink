@@ -14,7 +14,6 @@ const MY_GIVEN_DATA = [
   { id: 6, name: "Samad Sabharwal", bloodGroup: "AB+", city: "Ludhiana", phone: "7864900030", available: false },
   { id: 7, name: "Varun Patil", bloodGroup: "A-", city: "Bengaluru", phone: "6364450108", available: true },
   { id: 8, name: "Soham Gangopadhyay", bloodGroup: "AB-", city: "Hyderabad", phone: "8790276934", available: false },
-  { id: 9, name: "Kavya Tejani", bloodGroup: "B-", city: "Surat", phone: "9429423101", available: true }
 ];
 
 export default function App() {
